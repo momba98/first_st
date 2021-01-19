@@ -37,7 +37,7 @@ st.dataframe(df) #poderia ser st.write(df), mesma coisa. .table mostra ela está
 
 #rola fazer OHLC, só não vou focar nisso agora. É com o vega, https://docs.streamlit.io/en/stable/api.html
 
-#st.image(Image.open('vai tourinho.jpg'), caption='VAAAI TOURINHO', use_column_width=True) #USANDO O PIL, ABRIR UMA IMG
+st.image(Image.open('vaito.jpg'), caption='VAAAI TOURINHO', use_column_width=True) #USANDO O PIL, ABRIR UMA IMG
 
 genre = st.radio("What's your favorite movie genre", ('Comedy', 'Drama', 'Documentary'))
 
