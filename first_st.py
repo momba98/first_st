@@ -3,6 +3,7 @@ import pandas as pd
 from PIL import Image
 from datetime import datetime
 import time
+import xlrd
 
 st.set_page_config(page_title='Nome na aba', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='wide', initial_sidebar_state='auto')
 

@@ -9,5 +9,5 @@ pandas == 1.0.5
 # C:\Users\1998a\Documents\GitHub\first_st\first_st.py: 1
 streamlit == 0.74.1
 
-xrld==1.0.0
-
+# C:\Users\1998a\Documents\GitHub\first_st\first_st.py: 6
+xlrd == 1.2.0
