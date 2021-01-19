@@ -25,7 +25,7 @@ st.write("""
 
 #displaying um df
 
-df = pd.read_excel('../../../Desktop/Diario/DDE/2021-01-19.xlsx')
+df = pd.read_excel('2021-01-19.xlsx')
 
 df.drop(df.index[80],inplace=True) #excluindo o IBOV
 df.drop(df.columns[0], axis=1, inplace=True) #excluindo aquela primeira coluna podre
