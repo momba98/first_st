@@ -10,7 +10,7 @@ import numpy as np
 #automatizar push pro github junto com o DDE pra não precisar ficar fazendo isso
 #incluir algum gráfico?
 
-st.set_page_config(page_title='Nome na aba', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
+st.set_page_config(page_title='BDA - VOLUMES', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
 
 st.title("""
 
@@ -35,10 +35,10 @@ with st.beta_expander('MOTIVAÇÃO/INTRODUÇÃO'):
     """)
 
     st.write("""
-    A análise dessas informações se faz necessária uma vez que uma informação complementa a outra. Como por exemplo, podemos citar dois papéis (até então) muito distintos:
-    VALE3 e OIBR3. VALE3 tem o preço nominal estabelecido por volta dos R$ 100, enquanto OIBR3 por volta dos R$ 2. Obviamente, o montante que as negociações geram,
-    (ou seja, o Volume de Valor de VALE3) será imensamente maior que o de OIBR3, mesmo que negocie muito menos. Do outro lado da moeda, podemos imaginar que
-    o Vvolume de Quantidade em OIBR3 será muito maior que em VALE3, uma vez que 1 ação de uma representa ~50 ações de outra.
+    A análise desses dados se faz necessária uma vez que uma informação complementa a outra. Como por exemplo, podemos citar dois papéis (até então) muito distintos:
+    VALE3 e OIBR3. VALE3 tem o preço nominal estabelecido por volta dos R$ 100, enquanto OIBR3 por volta dos R$ 2. Obviamente, o montante que as negociações em VALE3 geram
+    (ou seja, o Volume de Valor) será imensamente maior que o de OIBR3, mesmo que negocie muito menos. Do outro lado da moeda, podemos imaginar que
+    o Volume de Quantidade em OIBR3 será muito maior que em VALE3, uma vez que 1 ação de uma empresa representa ~50 ações de outra.
     """)
 
     st.write("""
@@ -64,7 +64,7 @@ if agree:
 
     displaying = st.radio(
         label = "1.1 Como você gostaria de visualizar as informações?",
-        options = ('Diário', 'Range Diário'),
+        options = ('Diário (apenas um dia)', 'Range Diário (vários dias)'),
         index=1
         )
 
@@ -148,7 +148,7 @@ if agree:
 
         st.write(' ')
 
-        st.write(f'*O período selecionado foi de {str(data_i)[:10]} até {str(data_f)[:10]}. Estamos falando de {qtd_dias_escrito}*')
+        st.write(f'*O período selecionado é de {str(data_i)[:10]} até {str(data_f)[:10]}. Estamos falando de {qtd_dias_escrito}*')
 
         st.write(' ')
 
@@ -161,7 +161,7 @@ if agree:
                 label = "1.4 Gostaria de visualizar apenas alguns ativos.")
 
             if displaying3:
-                lista_personal = st.text_input(label='Liste os ativos exatamente como o exemplo demonstra (letra maíuscula, espaço depois de vírgula):', value='VALE3, ABEV3, MRFG3, WEGE3')
+                lista_personal = st.text_input(label='Liste os ativos exatamente como o exemplo demonstra (letra maíuscula e espaço depois de vírgula):', value='VALE3, ABEV3, MRFG3, WEGE3')
 
                 lista_personal = lista_personal.split(', ')
 
@@ -250,10 +250,10 @@ if agree:
 
         #st.write(dfs) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
 
-    if displaying == 'Diário':
+    if displaying == 'Diário (apenas um dia)':
          action = show_daily()
 
-    elif displaying == 'Range Diário':
+    elif displaying == 'Range Diário (vários dias)':
          action = show_range_daily()
 
     st.write(' ')
