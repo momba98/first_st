@@ -3,6 +3,7 @@ import os
 import time
 from pynput.keyboard import Key, Controller
 import pandas as pd
+import subprocess
 
 #abrir o profit
 os.system("start C:/Users/1998a/AppData/Roaming/Nelogica/ClearTrader/profitchart.exe")
