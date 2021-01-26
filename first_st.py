@@ -5,8 +5,10 @@ from datetime import datetime, timedelta
 import time
 import os
 import xlrd
+import numpy as np
 
-#falta construir o ranking e tentar otimizar essa exibição dos floats. no futuro, automatizar push pro github junto com o DDE pra não precisar ficar fazendo isso
+#automatizar push pro github junto com o DDE pra não precisar ficar fazendo isso
+#incluir algum gráfico?
 
 st.set_page_config(page_title='Nome na aba', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
 
@@ -16,201 +18,263 @@ BOLSISTAS DATA ANALYSIS
 
 """)
 
+st.write("""
+    ## VAMOS ESTUDAR OS VOLUMES: QUANTIDADE, VALOR E NEGÓCIOS
+""")
+
+st.write(' ')
+
+with st.beta_expander('MOTIVAÇÃO/INTRODUÇÃO'):
+
+    st.write(
+    """
+    Este webapp tem como objetivo aglomerar as informações que os volumes dos ativos da B3 nos fornecem.
+    Os três tipos de volume analisados são: **Volume de Quantidade** (quantas ações são negociadas),
+    **Volume de Negócios** (quantas vezes compradores e vendedores entraram em consenso) e **Volume de Valor** (qual o montante as negociações geraram, em R$).
+    Neste webapp, constroi-se um Ranking das principais ações da B3 atribuindo pesos aos diferentes volumes e somando-os.
+    """)
+
+    st.write("""
+    A análise dessas informações se faz necessária uma vez que uma informação complementa a outra. Como por exemplo, podemos citar dois papéis (até então) muito distintos:
+    VALE3 e OIBR3. VALE3 tem o preço nominal estabelecido por volta dos R$ 100, enquanto OIBR3 por volta dos R$ 2. Obviamente, o montante que as negociações geram,
+    (ou seja, o Volume de Valor de VALE3) será imensamente maior que o de OIBR3, mesmo que negocie muito menos. Do outro lado da moeda, podemos imaginar que
+    o Vvolume de Quantidade em OIBR3 será muito maior que em VALE3, uma vez que 1 ação de uma representa ~50 ações de outra.
+    """)
+
+    st.write("""
+    Por meio da utilização deste webapp, o usuário conseguirá visualizar os 3 volumes da maneira que quiser. Consequentemente, não será mais tão enganado
+    pelos valores dos volumes analisados de forma individual.
+    """)
+
+
+st.write(' ')
+st.write(' ')
+st.write(' ')
+
+
 agree = st.checkbox('Estou ciente de que nenhuma informação neste aplicativo é recomendação de compra ou venda de ativos na B3.')
 
 if agree:
-    st.write('Great!')
 
-st.write("""
+    st.write(' ')
 
-    ## VAMOS ESTUDAR OS VOLUMES:
-    ### QUANTIDADE, VALOR E NEGÓCIOS
+    st.write('### 1. Escolha o tipo de análise a ser feita:')
 
+    st.write(' ')
 
-""")
-
-displaying = st.radio(
-    label = "Como você gostaria de visualizar as informações?",
-    options = ('Diário', 'Range Diário'),
-    index=1
-    )
-
-#displaying um df
-def show_daily():
-
-    armz = {}
-
-    for file in os.listdir("planilhas_diarias"):
-        if file.endswith(".xlsx"):
-            df = pd.read_excel(f'planilhas_diarias/{file}')
-            df.drop(df.index[80],inplace=True) #excluindo o IBOV
-
-            df = df[['Asset','Nome do Ativo','Variação','Negócios', 'Quantidade', 'Volume']]
-
-            armz[file[:-5]] = df
-
-    del armz['fonte_DDE']
-
-    show_df = st.selectbox(
-         'Qual dia você gostaria de visualizar as informações?',
-         list(armz))
-
-    st.dataframe(armz[show_df]) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
-
-def show_range_daily():
-
-    displaying2 = st.radio(
-        label = "Como você gostaria de analisar as informações?",
-        options = ('Em soma', 'Em média'),
-        index=0
+    displaying = st.radio(
+        label = "1.1 Como você gostaria de visualizar as informações?",
+        options = ('Diário', 'Range Diário'),
+        index=1
         )
 
-    armz = {}
+    #displaying um df
+    def show_daily():
 
-    for file in os.listdir("planilhas_diarias"):
-        if file.endswith(".xlsx"):
-            df = pd.read_excel(f'planilhas_diarias/{file}')
-            df.drop(df.index[80],inplace=True) #excluindo o IBOV
-            df.drop(df.index[22],inplace=True) #excluindo o BOVA11
+        global df_show_daily
 
-            df = df[['Asset','Variação','Negócios', 'Quantidade', 'Volume']]
+        armz = {} #armazenar os files encontrados
 
-            armz[file[:-5]] = df
+        for file in os.listdir("planilhas_diarias"):
+            if file.endswith(".xlsx"):
+                df = pd.read_excel(f'planilhas_diarias/{file}')
+                df.drop(df.index[80],inplace=True) #excluindo o IBOV
+                df.drop(df.index[22],inplace=True) #excluindo o BOVA11
 
-    del armz['fonte_DDE']
+                df = df[['Asset','Variação','Negócios', 'Quantidade', 'Volume']]
 
-    Y_i=int(list(armz)[0][:4])
-    M_i=int(list(armz)[0][5:7])
-    D_i=int(list(armz)[0][8:10])
+                armz[file[:-5]] = df
 
-    data_i=datetime(Y_i,M_i,D_i)
+        del armz['fonte_DDE']
 
-    Y_f=int(list(armz)[-1][:4])
-    M_f=int(list(armz)[-1][5:7])
-    D_f=int(list(armz)[-1][8:10])
+        st.write(' ')
 
-    data_f=datetime(Y_f,M_f,D_f)
+        show_df = st.selectbox(
+             '1.2 Qual dia você gostaria de visualizar as informações?',
+             list(armz))
 
-    show_df = st.slider(
-        label='Qual range você gostaria de visualizar?',
+        df_show_daily = armz[show_df]
+
+        return 'show_daily'
+
+
+        #st.dataframe(armz[show_df]) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
+
+    def show_range_daily():
+
+        global df_show_range
+
+        armz = {}
+
+        for file in os.listdir("planilhas_diarias"):
+            if file.endswith(".xlsx"):
+                df = pd.read_excel(f'planilhas_diarias/{file}')
+                df.drop(df.index[80],inplace=True) #excluindo o IBOV
+                df.drop(df.index[22],inplace=True) #excluindo o BOVA11
+
+                df = df[['Asset','Variação','Negócios', 'Quantidade', 'Volume']]
+
+                armz[file[:-5]] = df
+
+        del armz['fonte_DDE']
+
+        Y_i=int(list(armz)[0][:4])
+        M_i=int(list(armz)[0][5:7])
+        D_i=int(list(armz)[0][8:10])
+
+        data_i=datetime(Y_i,M_i,D_i)
+
+        Y_f=int(list(armz)[-1][:4])
+        M_f=int(list(armz)[-1][5:7])
+        D_f=int(list(armz)[-1][8:10])
+
+        data_f=datetime(Y_f,M_f,D_f)
+
+        st.write(' ')
+
+        show_df = st.slider(
+        label='1.2 Qual range de data você gostaria de visualizar?',
         min_value=data_i,
         max_value=data_f,
         value=[data_i,data_f])
         #format="YY-MM-DD")
 
-    qtd_dias = str(show_df[1]-show_df[0] + timedelta(days=1)).split(',')[0]
+        qtd_dias = str(show_df[1]-show_df[0] + timedelta(days=1)).split(',')[0]
 
-    st.write('We are talking about', qtd_dias)
-
-    day_low = str((show_df)[0])[:-9]
-    day_high = str((show_df)[1])[:-9]
-
-    lista_inicio_fim_iteracao=[]
-
-    for chave,valor in enumerate(armz.keys()):
-        if valor == day_low:
-            lista_inicio_fim_iteracao.append(chave)
-
-        if valor == day_high:
-            lista_inicio_fim_iteracao.append(chave)
-
-            #duplo é necessário pra lista ter sempre o mesmo tamanho
-
-    dfs = armz[day_low].copy()
-
-    for somador in range(lista_inicio_fim_iteracao[0]+1,lista_inicio_fim_iteracao[1]+1):
-        dfs += armz[list(armz)[somador]]
-
-    if displaying2 == 'Em média':
-
-        if qtd_dias[-1] == 's':
-            dias = int(qtd_dias[:-5])
+        if qtd_dias[-4:] == 'days':
+            qtd_dias_escrito = qtd_dias[:2] + 'pregões.'
         else:
-            dias = 1
+            qtd_dias_escrito = qtd_dias[:2] + 'pregão.'
 
-        dfs[['Variação','Negócios', 'Quantidade', 'Volume']] = round(dfs[['Variação','Negócios', 'Quantidade', 'Volume']]/dias,2) #retirando o ' days'
+        st.write(' ')
 
-        #dfs[['Volume']] = dfs[['Volume']].astype(float)
-        dfs[['Negócios', 'Quantidade']] = dfs[['Negócios', 'Quantidade']].astype(int)
+        st.write(f'*O período selecionado foi de {str(data_i)[:10]} até {str(data_f)[:10]}. Estamos falando de {qtd_dias_escrito}*')
 
-    dfs[['Asset']] = armz[day_low][['Asset']]
+        st.write(' ')
 
-    st.write(dfs) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
+        with st.beta_expander('MAIORES CUSTOMIZAÇÕES'):
 
+            displaying2 = st.checkbox(
+                label = "1.3 Gostaria de visualizar os dados em forma de soma (média por default).")
 
+            displaying3 = st.checkbox(
+                label = "1.4 Gostaria de visualizar apenas alguns ativos.")
 
-if displaying == 'Diário':
-     show_daily()
-elif displaying == 'Range Diário':
-     show_range_daily()
+            if displaying3:
+                lista_personal = st.text_input(label='Liste os ativos exatamente como o exemplo demonstra (letra maíuscula, espaço depois de vírgula):', value='VALE3, ABEV3, MRFG3, WEGE3')
 
-#st.line_chart(df.Abertura)
+                lista_personal = lista_personal.split(', ')
 
-#rola fazer OHLC, só não vou focar nisso agora. É com o vega, https://docs.streamlit.io/en/stable/api.html
+            displaying4 = st.checkbox(
+                label = "1.5 Gostaria de alterar os pesos dos valores que constroem o Ranking.")
 
-st.image(Image.open('vaito.jpg'), caption='VAAAI TOURINHO', use_column_width=True) #USANDO O PIL, ABRIR UMA IMG
+            if displaying4:
 
-age = st.slider('How old are you?', 0, 130, 27) #para transformar em um range, apenas colocar o 3o argumento como lista
-st.write("I'm ", age, 'years old')
-
-
-#title = st.text_input('Movie title', 'Life of Brian')  #or it could be number_input too
-#st.write('The current movie title is', title)
-
-#a sidebar dispõe as opções num menu ao lado pra dar mais foco  à informação.
-# a key serve pra referenciar esse cara.
-
-#add_selectbox = st.sidebar.selectbox(
-#    "How would you like to be contacted?",
-#    ("Email", "Home phone", "Mobile phone"), key='sfw121'
-#)
+                st.write("O Ranking é construído dando pesos iguais aos 3 tipos de volume (Quantidade, Negócios e Valor).")
+                st.write("Em outras palavras, normalizamos todos os valores de acordo com o máximo de cada coluna e então somamos tudo. Quanto mais próximo do valor máximo, maior é o Ranking.")
+                st.write("Por padrão, cada tipo de volume recebe o peso de 0,33.")
+                st.write("Caso você ache que um valor é mais importante do que outro, altere como preferir nos campos abaixo. **Lembre-se, o valor deve ser próximo de 1!**")
+                peso_quantidade = st.number_input(label='Peso para Quantidade', value=0.33)
+                peso_negocios = st.number_input(label='Peso para Negócios', value=0.33)
+                peso_valor = st.number_input(label='Peso para Valor', value=0.33)
 
 
-#beta_columns organiza o app em forma de colunas.
-# se for passado só um int, é o número de colunas que vai ter, todas iguais.
-# se for passado uma lista, o numero de colunas é o len e a width é proporcional ao int da posição.
+                if (peso_quantidade + peso_negocios + peso_valor < 0.98) | (peso_quantidade + peso_negocios + peso_valor > 1.02):
+                    st.error('O valor está divergindo consideravelmente de 1. Algum erro pode acontecer.')
 
-col1, col2, col3 = st.beta_columns([5,2,1])
+                else:
+                    st.success('Tudo certo com o valor dos pesos!')
 
-#pode ser com o nome da coluna.a função
-#ou pode ser com o with.
+        day_low = str((show_df)[0])[:-9]
+        day_high = str((show_df)[1])[:-9]
 
-col1.header("A cat")
-col1.image("https://static.streamlit.io/examples/cat.jpg", use_column_width=True)
+        lista_inicio_fim_iteracao=[]
 
-with col2:
-    st.header("A dog")
-    st.image("https://static.streamlit.io/examples/dog.jpg", use_column_width=True)
+        for chave,valor in enumerate(armz.keys()):
+            if valor == day_low:
+                lista_inicio_fim_iteracao.append(chave)
 
-with col3:
-    st.header("An owl")
-    st.image("https://static.streamlit.io/examples/owl.jpg", use_column_width=True)
+            if valor == day_high:
+                lista_inicio_fim_iteracao.append(chave)
 
+                #duplo é necessário pra lista ter sempre o mesmo tamanho
 
-#uma forma de esconder as informações
+        alguma_referencia = day_low
 
-st.line_chart({"data": [1, 5, 2, 6, 2, 1]})
+        dfs = armz[alguma_referencia].copy()
 
-with st.beta_expander("See explanation"):
-     st.write("""
-         The chart above shows some numbers I picked for you.
-         I rolled actual dice for these, so they're *guaranteed* to
-         be random.
-     """)
-     st.image("https://static.streamlit.io/examples/dice.jpg")
+        for somador in range(lista_inicio_fim_iteracao[0]+1,lista_inicio_fim_iteracao[1]+1):
+            dfs += armz[list(armz)[somador]]
 
-#st.balloons()
+        if not displaying2:
+            if qtd_dias[-1] == 's':
+                dias = int(qtd_dias[:-5])
+            else:
+                dias = 1
 
-#st.error('This is an error')
+            dfs['Variação'] = round(dfs['Variação']/dias,3)
+            dfs[['Negócios', 'Quantidade', 'Volume']] = round(dfs[['Negócios', 'Quantidade', 'Volume']]/dias,0)
 
-#st.info('This is a purely informational message')
+        dfs['Asset'] = armz[alguma_referencia]['Asset']
 
-#st.success('This is a success message!')
+        dfs['Negócios_Param'] = dfs['Negócios']/max(dfs['Negócios'])
+        dfs['Quantidade_Param'] = dfs['Quantidade']/max(dfs['Quantidade'])
+        dfs['Volume_Param'] = dfs['Volume']/max(dfs['Volume'])
 
-#Inserts a container into your app that can be used to hold a single element.
+        if displaying4:
+            dfs['Ranking'] = peso_negocios*dfs['Negócios_Param'] + peso_quantidade*dfs['Quantidade_Param'] + peso_valor*dfs['Volume_Param']
 
-with st.empty():
-     for seconds in range(12):
-         st.write(f"⏳ {seconds} seconds have passed")
-         time.sleep(1)
-     st.write("✔️ 1 minute over!")
+        else:
+            dfs['Ranking'] = (1/3)*dfs['Negócios_Param'] + (1/3)*dfs['Quantidade_Param'] + (1/3)*dfs['Volume_Param']
+
+        dfs['Ranking'] = 100*dfs['Ranking']/max(dfs['Ranking'])
+
+        dfs = dfs.sort_values('Ranking', ascending=False)
+
+        dfs['Ranking_Param'] = np.arange(1,len(dfs['Ranking'])+1)
+
+        dfs.set_index('Ranking_Param', inplace=True)
+
+        del dfs['Negócios_Param'], dfs['Quantidade_Param'], dfs['Volume_Param']#, dfs['Ranking']
+
+        if displaying3:
+            dfs= dfs[dfs['Asset'].isin(lista_personal)]
+
+        #dfs.columns(['Asset', 'Variação (%)', 'Vol. Negócios (trades)', 'Vol. Quantidade (ações)', 'Vol. Valor (R$)'])
+
+        dfs = dfs.rename({'Variação': 'Variação (%)', 'Negócios': 'Negócios', 'Quantidade':'Quantidade', 'Volume':'Valor (R$)'}, axis='columns')
+
+        df_show_range = dfs
+
+        return 'show_range'
+
+        #st.write(dfs) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
+
+    if displaying == 'Diário':
+         action = show_daily()
+
+    elif displaying == 'Range Diário':
+         action = show_range_daily()
+
+    st.write(' ')
+    st.write(' ')
+    st.write(' ')
+
+    st.write('### 2. Visualize seus dados e tire suas conclusões clicando no botão!')
+
+    if action == 'show_daily':
+        st.write('Clicando no botão, uma tabela será mostrada com todos os ativos mais negociados da B3 no dia selecionado. Você pode alterar a ordem das linhas clicando no nome das colunas.')
+
+    elif action == 'show_range':
+        st.write(' ')
+        st.write('Clicando no botão, uma tabela será mostrada em ordem do melhor colocado de acordo com o Ranking para o pior.')
+        st.write(' ')
+
+    botao = st.button(label='Mostre-me meus resultados.')
+
+    if botao:
+        if action == 'show_range':
+            st.write(df_show_range)
+
+        if action == 'show_daily':
+            st.write(df_show_daily)
