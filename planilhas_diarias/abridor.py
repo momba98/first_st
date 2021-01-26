@@ -59,4 +59,6 @@ subprocess.run(["git", "add", "*"])
 subprocess.run(["git", "commit", "-m", "vintenove"])
 subprocess.run(["git", "push"])
 
+time.sleep(30)
+
 print('Pronto!')
