@@ -9,6 +9,7 @@ import numpy as np
 
 #automatizar push pro github junto com o DDE pra não precisar ficar fazendo isso
 #incluir algum gráfico?
+#TROCAR O NOME DO REPO E DO APLICATIVO NO STREAMLIT?
 
 st.set_page_config(page_title='BDA - VOLUMES', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
 
