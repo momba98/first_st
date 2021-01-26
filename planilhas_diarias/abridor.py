@@ -42,6 +42,21 @@ os.system('TASKKILL /F /IM excel.exe')
 os.system('TASKKILL /F /IM profitchart.exe')
 
 #usar pandas pra ler a tabela atualiazda e salvar em outro arquivo com o nome de hoje
+
+print('Criando nova planilha com os dados coletados...')
+
 df = pd.read_excel("fonte_DDE.xlsx")
 today = datetime.date.today()
 df.to_excel(f"{today}.xlsx")
+
+print('Pronto!')
+
+time.sleep(3)
+
+print('Dando commit no git. O webapp deve estar atualizados em instantes.')
+
+subprocess.run(["git", "add", "*"])
+subprocess.run(["git", "commit", "-m", "vintenove"])
+subprocess.run(["git", "push"])
+
+print('Pronto!')
