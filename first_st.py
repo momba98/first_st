@@ -92,11 +92,15 @@ if agree:
 
         lista_de_planilhas = np.sort(list(armz))
 
+        lista_de_datas = [datetime.strptime(a, "%Y-%m-%d").date() for a in lista_de_planilhas]
+
+        lista_de_datas2 = [a.strftime('%d/%m/%Y') for a in lista_de_datas]
+
         show_df = st.selectbox(
              '1.2 Qual dia você gostaria de visualizar as informações?',
-             lista_de_planilhas)
+             lista_de_datas2)
 
-        df_show_daily = armz[show_df]
+        df_show_daily = armz[datetime.strptime(show_df, '%d/%m/%Y').date().strftime("%Y-%m-%d")] #que putaria... kkkkk
 
         return 'show_daily'
 
