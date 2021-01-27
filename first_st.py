@@ -90,9 +90,11 @@ if agree:
 
         st.write(' ')
 
+        lista_de_planilhas = np.sort(list(armz))
+
         show_df = st.selectbox(
              '1.2 Qual dia você gostaria de visualizar as informações?',
-             list(armz))
+             lista_de_planilhas)
 
         df_show_daily = armz[show_df]
 
@@ -119,20 +121,22 @@ if agree:
 
         del armz['fonte_DDE']
 
-        Y_i=int(list(armz)[0][:4])
-        M_i=int(list(armz)[0][5:7])
-        D_i=int(list(armz)[0][8:10])
+        lista_de_planilhas = np.sort(list(armz))
+
+        Y_i=int(lista_de_planilhas[0][:4])
+        M_i=int(lista_de_planilhas[0][5:7])
+        D_i=int(lista_de_planilhas[0][8:10])
 
         data_i=datetime(Y_i,M_i,D_i)
 
-        Y_f=int(list(armz)[-1][:4])
-        M_f=int(list(armz)[-1][5:7])
-        D_f=int(list(armz)[-1][8:10])
+        Y_f=int(lista_de_planilhas[-1][:4])
+        M_f=int(lista_de_planilhas[-1][5:7])
+        D_f=int(lista_de_planilhas[-1][8:10])
 
         data_f=datetime(Y_f,M_f,D_f)
 
         st.write(list(armz))
-        st.write(np.sort(list(armz)))
+        st.write(lista_de_planilhas)
 
 
         show_df = st.slider(
