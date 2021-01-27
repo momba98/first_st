@@ -12,9 +12,9 @@ os.system("start C:/Users/1998a/AppData/Roaming/Nelogica/ClearTrader/profitchart
 time.sleep(15)
 
 #abrir planilha atrelada ao DDE do profit
-os.chdir("C:/Users/1998a/Documents/GitHub/bolsistas_da/planilhas_diarias")
+os.chdir("C:/Users/1998a/Documents/GitHub/bolsistas_da")
 
-os.system("start EXCEL.EXE fonte_DDE.xlsx")
+os.system("start EXCEL.EXE planilhas_diarias/fonte_DDE.xlsx")
 
 #esperar carregar
 time.sleep(10)
@@ -45,9 +45,9 @@ os.system('TASKKILL /F /IM profitchart.exe')
 
 print('Criando nova planilha com os dados coletados...')
 
-df = pd.read_excel("fonte_DDE.xlsx")
+df = pd.read_excel("planilhas_diarias/fonte_DDE.xlsx")
 today = datetime.date.today()
-df.to_excel(f"{today}.xlsx")
+df.to_excel(f"planilhas_diarias/{today}.xlsx")
 
 print('Pronto!')
 

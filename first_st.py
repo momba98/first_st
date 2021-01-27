@@ -11,7 +11,7 @@ import numpy as np
 #incluir algum gráfico?
 #TROCAR O NOME DO REPO E DO APLICATIVO NO STREAMLIT?
 
-st.set_page_config(page_title='BDA - VOLUMES', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
+st.set_page_config(page_title='BDA - Volumes', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
 
 st.title("""
 
