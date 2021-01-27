@@ -56,9 +56,9 @@ time.sleep(3)
 print('Dando commit no git. O webapp deve estar atualizados em instantes.')
 
 subprocess.run(["git", "add", "*"])
-subprocess.run(["git", "commit", "-m", "vintenove"])
+subprocess.run(["git", "commit", "-m", f"{today}"])
 subprocess.run(["git", "push"])
 
-time.sleep(30)
-
 print('Pronto!')
+
+time.sleep(30)
