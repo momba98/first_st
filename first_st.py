@@ -132,6 +132,8 @@ if agree:
         data_f=datetime(Y_f,M_f,D_f)
 
         st.write(list(armz))
+        st.write(np.sort(list(armz)))
+
 
         show_df = st.slider(
         label='1.2 Qual range de data você gostaria de visualizar?',
