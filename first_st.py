@@ -143,15 +143,30 @@ if agree:
         qtd_dias = str(show_df[1]-show_df[0] + timedelta(days=1)).split(',')[0]
 
         if qtd_dias[-4:] == 'days':
-            qtd_dias_escrito = qtd_dias[:2] + 'pregões.'
+            qtd_dias_escrito = qtd_dias[:2] + 'dias corridos'
         else:
-            qtd_dias_escrito = qtd_dias[:2] + 'pregão.'
+            qtd_dias_escrito = qtd_dias[:2] + 'dia corrido'
 
         st.write(' ')
 
-        st.write(f'*O período selecionado é de {str(data_i)[:10]} até {str(data_f)[:10]}. Estamos falando de {qtd_dias_escrito}*')
+        pregoes = []
 
-        st.write(' ')
+        for file in os.listdir("planilhas_diarias"):
+            if file.endswith(".xlsx"):
+                if file[0] != 'f':
+                    Y_=int(file[:4])
+                    M_=int(file[5:7])
+                    D_=int(file[8:10])
+                    data_=datetime(Y_,M_,D_)
+                    if np.logical_and(data_>=show_df[0],data_<=show_df[1]):
+                        pregoes.append(file)
+
+        #st.write(pregoes)
+
+        st.write(f'*O período selecionado é de {str(show_df[0])[:10]} até {str(show_df[1])[:10]}. Estamos falando de {qtd_dias_escrito}, quais ocorreram {len(pregoes)} pregões.*')
+
+
+        #st.write(show_df[0]>show_df[1])
 
         with st.beta_expander('MAIORES CUSTOMIZAÇÕES'):
 
@@ -186,37 +201,22 @@ if agree:
                 else:
                     st.success('Tudo certo com o valor dos pesos!')
 
-        day_low = str((show_df)[0])[:-9]
-        day_high = str((show_df)[1])[:-9]
+        dfs = armz[pregoes[0][:10]].copy()
 
-        lista_inicio_fim_iteracao=[]
+        if len(pregoes)>1:
+            for somador in pregoes[1:]:
+                dfs += armz[somador[:10]]
 
-        for chave,valor in enumerate(armz.keys()):
-            if valor == day_low:
-                lista_inicio_fim_iteracao.append(chave)
-
-            if valor == day_high:
-                lista_inicio_fim_iteracao.append(chave)
-
-                #duplo é necessário pra lista ter sempre o mesmo tamanho
-
-        alguma_referencia = day_low
-
-        dfs = armz[alguma_referencia].copy()
-
-        for somador in range(lista_inicio_fim_iteracao[0]+1,lista_inicio_fim_iteracao[1]+1):
-            dfs += armz[list(armz)[somador]]
+        else:
+            pass
 
         if not displaying2:
-            if qtd_dias[-1] == 's':
-                dias = int(qtd_dias[:-5])
-            else:
-                dias = 1
+            dias = len(pregoes)
 
             dfs['Variação'] = round(dfs['Variação']/dias,3)
             dfs[['Negócios', 'Quantidade', 'Volume']] = round(dfs[['Negócios', 'Quantidade', 'Volume']]/dias,0)
 
-        dfs['Asset'] = armz[alguma_referencia]['Asset']
+        dfs['Asset'] = armz[pregoes[0][:10]]['Asset']
 
         dfs['Negócios_Param'] = dfs['Negócios']/max(dfs['Negócios'])
         dfs['Quantidade_Param'] = dfs['Quantidade']/max(dfs['Quantidade'])
