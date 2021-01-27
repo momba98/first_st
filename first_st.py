@@ -135,8 +135,12 @@ if agree:
 
         data_f=datetime(Y_f,M_f,D_f)
 
-        st.write(list(armz))
+        st.write(' ')
+
         st.write(lista_de_planilhas)
+        st.write(data_i)
+        st.write(data_f)
+
 
 
         show_df = st.slider(
