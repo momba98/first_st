@@ -123,32 +123,16 @@ if agree:
 
         lista_de_planilhas = np.sort(list(armz))
 
-        Y_i=int(lista_de_planilhas[0][:4])
-        M_i=int(lista_de_planilhas[0][5:7])
-        D_i=int(lista_de_planilhas[0][8:10])
-
-        data_i=datetime(Y_i,M_i,D_i)
-
-        Y_f=int(lista_de_planilhas[-1][:4])
-        M_f=int(lista_de_planilhas[-1][5:7])
-        D_f=int(lista_de_planilhas[-1][8:10])
-
-        data_f=datetime(Y_f,M_f,D_f)
+        lista_de_datas = [datetime.strptime(a, "%Y-%m-%d").date() for a in lista_de_planilhas]
 
         st.write(' ')
 
-        st.write(lista_de_planilhas)
-        st.write(data_i)
-        st.write(data_f)
-
-
-
         show_df = st.slider(
         label='1.2 Qual range de data você gostaria de visualizar?',
-        min_value=data_i,
-        max_value=data_f,
-        value=[data_i,data_f])
-        #format="YY-MM-DD")
+        min_value=lista_de_datas[0],
+        max_value=lista_de_datas[-1],
+        value=[lista_de_datas[0],lista_de_datas[-1]],
+        format="DD/MM/YYYY")
 
         qtd_dias = str(show_df[1]-show_df[0] + timedelta(days=1)).split(',')[0]
 
@@ -168,15 +152,14 @@ if agree:
                     M_=int(file[5:7])
                     D_=int(file[8:10])
                     data_=datetime(Y_,M_,D_)
-                    if np.logical_and(data_>=show_df[0],data_<=show_df[1]):
+                    if np.logical_and(data_.date()>=show_df[0],data_.date()<=show_df[1]):
                         pregoes.append(file)
 
-        #st.write(pregoes)
+        inicio = show_df[0].strftime('%d/%m/%Y')
 
-        st.write(f'*O período selecionado é de {str(show_df[0])[:10]} até {str(show_df[1])[:10]}. Estamos falando de {qtd_dias_escrito}, quais ocorreram {len(pregoes)} pregões.*')
+        final = show_df[1].strftime('%d/%m/%Y')
 
-
-        #st.write(show_df[0]>show_df[1])
+        st.write(f'*O período selecionado é de {inicio} até {final}. Estamos falando de {qtd_dias_escrito}, quais ocorreram {len(pregoes)} pregões.*')
 
         with st.beta_expander('MAIORES CUSTOMIZAÇÕES'):
 
