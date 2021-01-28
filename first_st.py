@@ -7,9 +7,10 @@ import os
 import xlrd
 import numpy as np
 
-#automatizar push pro github junto com o DDE pra não precisar ficar fazendo isso
-#incluir algum gráfico?
-#TROCAR O NOME DO REPO E DO APLICATIVO NO STREAMLIT?
+#incluir gráfico: selecione o ativo e veja seu desempenho no ranking ao longo do tempo
+#incluir customização: adicionar ou não o ranking definido por mim, que vai comparar
+#o desemepnho do ativo com o desempenho do ibov naquele ano. começar em 2015 e ir até 2020.
+#TROCAR O NOME DO REPO
 
 st.set_page_config(page_title='BDA - Volumes', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
 
@@ -109,7 +110,7 @@ if agree:
 
     def show_range_daily():
 
-        global df_show_range
+        global df_show_range, status, inicio, final, pregoes
 
         armz = {}
 
@@ -141,9 +142,9 @@ if agree:
         qtd_dias = str(show_df[1]-show_df[0] + timedelta(days=1)).split(',')[0]
 
         if qtd_dias[-4:] == 'days':
-            qtd_dias_escrito = qtd_dias[:2] + 'dias corridos'
+            qtd_dias_escrito = qtd_dias[:2] + ' dias corridos'
         else:
-            qtd_dias_escrito = qtd_dias[:2] + 'dia corrido'
+            qtd_dias_escrito = qtd_dias[:2] + ' dia corrido'
 
         st.write(' ')
 
@@ -207,7 +208,12 @@ if agree:
         else:
             pass
 
+        status = 'SOMADA'
+
         if not displaying2:
+
+            status = 'MÉDIA'
+
             dias = len(pregoes)
 
             dfs['Variação'] = round(dfs['Variação']/dias,3)
@@ -265,13 +271,17 @@ if agree:
 
     elif action == 'show_range':
         st.write(' ')
-        st.write('Clicando no botão, uma tabela será mostrada em ordem do melhor colocado de acordo com o Ranking para o pior.')
+        st.write(' ')
+        st.write('Clicando no botão, uma tabela será mostrada em ordem do melhor para o pior colodao, de acordo com o Ranking.')
         st.write(' ')
 
     botao = st.button(label='Mostre-me meus resultados.')
 
     if botao:
         if action == 'show_range':
+
+            st.write(f"""## TABELA {status} RESUMO: DE {inicio} ATÉ {final} ({len(pregoes)} PREGÕES AO TOTAL)""")
+
             st.write(df_show_range)
 
         if action == 'show_daily':
