@@ -80,8 +80,10 @@ if agree:
         for file in os.listdir("planilhas_diarias"):
             if file.endswith(".xlsx"):
                 df = pd.read_excel(f'planilhas_diarias/{file}')
-                df.drop(df.index[81],inplace=True) #excluindo o IBOV
-                df.drop(df.index[22],inplace=True) #excluindo o BOVA11
+
+                for ativo in ['IBOV', 'BOVA11']:
+                    del_index = df.index[df['Asset'] == ativo]
+                    df.drop(df.index[del_index],inplace=True)
 
                 df = df[['Asset','Variação','Negócios', 'Quantidade', 'Volume']]
 
@@ -117,8 +119,10 @@ if agree:
         for file in os.listdir("planilhas_diarias"):
             if file.endswith(".xlsx"):
                 df = pd.read_excel(f'planilhas_diarias/{file}')
-                df.drop(df.index[80],inplace=True) #excluindo o IBOV
-                df.drop(df.index[22],inplace=True) #excluindo o BOVA11
+
+                for ativo in ['IBOV', 'BOVA11']:
+                    del_index = df.index[df['Asset'] == ativo]
+                    df.drop(df.index[del_index],inplace=True)
 
                 df = df[['Asset','Variação','Negócios', 'Quantidade', 'Volume']]
 
