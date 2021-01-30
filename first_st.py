@@ -80,7 +80,7 @@ if agree:
         for file in os.listdir("planilhas_diarias"):
             if file.endswith(".xlsx"):
                 df = pd.read_excel(f'planilhas_diarias/{file}')
-                df.drop(df.index[80],inplace=True) #excluindo o IBOV
+                df.drop(df.index[81],inplace=True) #excluindo o IBOV
                 df.drop(df.index[22],inplace=True) #excluindo o BOVA11
 
                 df = df[['Asset','Variação','Negócios', 'Quantidade', 'Volume']]
