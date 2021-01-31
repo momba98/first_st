@@ -8,8 +8,6 @@ import xlrd
 import numpy as np
 
 #incluir gráfico: selecione o ativo e veja seu desempenho no ranking ao longo do tempo
-#incluir customização: adicionar ou não o ranking definido por mim, que vai comparar
-#o desemepnho do ativo com o desempenho do ibov naquele ano. começar em 2015 e ir até 2020.
 #TROCAR O NOME DO REPO
 
 st.set_page_config(page_title='BDA - Volumes', page_icon="https://static.streamlit.io/examples/cat.jpg", layout='centered', initial_sidebar_state='auto')
@@ -48,6 +46,12 @@ with st.beta_expander('MOTIVAÇÃO/INTRODUÇÃO'):
     pelos valores dos volumes analisados de forma individual.
     """)
 
+    st.write("""
+    Além disso, o estudo também indica quais ativos tiveram melhor desempenho médio em relação ao IBOV de 2016 até 2021 (parâmetro chamado de **Evolução**). O algorítmo dá prioridade aos ativos que
+    tem mais tempo de negociação (IPOs extremamente performantes tenderão a ter classificação pior do que ativos antigos de ganho razoável). A Evolução
+    pode ser classificada de S+ até F-. Se um ativo apresenta classificação F, significa que se valorizou de modo médio bem menos do que o prórpio IBOV ou eventualmente deu prejuízo.
+    """)
+
 
 st.write(' ')
 st.write(' ')
@@ -70,7 +74,15 @@ if agree:
         index=1
         )
 
-    #displaying um df
+    def read_evolution():
+        #média do desempenho entre 2010 e 2021
+        df_re = pd.read_excel("valorizacao_anual/ranking_de_2016_a_2021_feito_em_30_01.xlsx")
+        del df_re['Unnamed: 0']
+
+        df_re.set_index('Ativo', inplace=True)
+
+        return df_re.to_dict()
+
     def show_daily():
 
         global df_show_daily
@@ -106,9 +118,6 @@ if agree:
         df_show_daily = armz[datetime.strptime(show_df, '%d/%m/%Y').date().strftime("%Y-%m-%d")] #que putaria... kkkkk
 
         return 'show_daily'
-
-
-        #st.dataframe(armz[show_df]) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
 
     def show_range_daily():
 
@@ -173,90 +182,135 @@ if agree:
         with st.beta_expander('MAIORES CUSTOMIZAÇÕES'):
 
             displaying2 = st.checkbox(
-                label = "1.3 Gostaria de visualizar os dados em forma de soma (média por default).")
+                label = "1.3 Visualizar os dados em forma de soma (média por default).")
 
             displaying3 = st.checkbox(
-                label = "1.4 Gostaria de visualizar apenas alguns ativos.")
+                label = "1.4 Visualizar apenas alguns ativos.")
 
             if displaying3:
                 lista_personal = st.text_input(label='Liste os ativos exatamente como o exemplo demonstra (letra maíuscula e espaço depois de vírgula):', value='VALE3, ABEV3, MRFG3, WEGE3')
 
                 lista_personal = lista_personal.split(', ')
 
+            displaying6 = st.checkbox(
+                label = "1.5 Adicionar a evolução dos ativos ao peso do Ranking.")
+
             displaying4 = st.checkbox(
-                label = "1.5 Gostaria de alterar os pesos dos valores que constroem o Ranking.")
+                label = "1.6 Alterar os pesos dos valores que constroem o Ranking.")
 
             if displaying4:
 
-                st.write("O Ranking é construído dando pesos iguais aos 3 tipos de volume (Quantidade, Negócios e Valor).")
-                st.write("Em outras palavras, normalizamos todos os valores de acordo com o máximo de cada coluna e então somamos tudo. Quanto mais próximo do valor máximo, maior é o Ranking.")
-                st.write("Por padrão, cada tipo de volume recebe o peso de 0,33.")
-                st.write("Caso você ache que um valor é mais importante do que outro, altere como preferir nos campos abaixo. **Lembre-se, o valor deve ser próximo de 1!**")
-                peso_quantidade = st.number_input(label='Peso para Quantidade', value=0.33)
-                peso_negocios = st.number_input(label='Peso para Negócios', value=0.33)
-                peso_valor = st.number_input(label='Peso para Valor', value=0.33)
+                if not displaying6:
+                    st.write("Por padrão, o Ranking é construído dando pesos iguais aos 3 tipos de volume (Quantidade, Negócios e Valor).")
+                    st.write("Em outras palavras, normalizamos todos os valores de acordo com o máximo de cada coluna e então somamos tudo. Quanto mais próximo do valor máximo, maior é o Ranking.")
+                    st.write("Se nada for alterado, cada tipo de volume recebe o peso de 0,33.")
+                    st.write("Caso você ache que um valor é mais importante do que outro, altere como preferir nos campos abaixo. **Lembre-se, o valor deve ser próximo de 1!**")
+                    peso_quantidade = st.number_input(label='Peso para Quantidade', value=0.33)
+                    peso_negocios = st.number_input(label='Peso para Negócios', value=0.33)
+                    peso_valor = st.number_input(label='Peso para Valor', value=0.33)
 
-
-                if (peso_quantidade + peso_negocios + peso_valor < 0.98) | (peso_quantidade + peso_negocios + peso_valor > 1.02):
-                    st.error('O valor está divergindo consideravelmente de 1. Algum erro pode acontecer.')
+                    if (peso_quantidade + peso_negocios + peso_valor < 0.98) | (peso_quantidade + peso_negocios + peso_valor > 1.02):
+                        st.error('O valor está divergindo consideravelmente de 1. Algum erro pode acontecer.')
+                    else:
+                        st.success('Tudo certo com o valor dos pesos!')
 
                 else:
-                    st.success('Tudo certo com o valor dos pesos!')
+                    st.write("Por padrão, o Ranking é construído dando pesos iguais aos 3 tipos de volume (Quantidade, Negócios e Valor).")
+                    st.write("Em outras palavras, normalizamos todos os valores de acordo com o máximo de cada coluna e então somamos tudo. Quanto mais próximo do valor máximo, maior é o Ranking.")
+                    st.write("Se nada for alterado, cada tipo de volume recebe o peso de 0,33.")
+                    st.write("Caso você ache que um valor é mais importante do que outro, altere como preferir nos campos abaixo. **Lembre-se, o valor deve ser próximo de 1!**")
+                    peso_quantidade = st.number_input(label='Peso para Quantidade', value=0.25)
+                    peso_negocios = st.number_input(label='Peso para Negócios', value=0.25)
+                    peso_valor = st.number_input(label='Peso para Valor', value=0.25)
+                    peso_evolucao = st.number_input(label='Peso para Evolução', value=0.25)
+
+                    if (peso_quantidade + peso_negocios + peso_valor + peso_evolucao < 0.98) | (peso_quantidade + peso_negocios + peso_valor + peso_evolucao > 1.02):
+                        st.error('O valor está divergindo consideravelmente de 1. Algum erro pode acontecer.')
+                    else:
+                        st.success('Tudo certo com o valor dos pesos!')
 
         dfs = armz[pregoes[0][:10]].copy()
 
         if len(pregoes)>1:
             for somador in pregoes[1:]:
                 dfs += armz[somador[:10]]
-
         else:
             pass
+
+        dfs['Asset'] = armz[pregoes[0][:10]]['Asset']
+        df_re = read_evolution()
+
+        dfs['Evolução'] = np.zeros((len(dfs),1))
+
+        #meu, q porra, pq não consigo concatenar os 2 df?
+
+        for varredor in dfs['Asset']:
+            try:
+                dfs.at[dfs.index[dfs['Asset'] == varredor][0],'Evolução'] = df_re['Score'][varredor]
+            except:
+                pass
 
         status = 'SOMADA'
 
         if not displaying2:
-
             status = 'MÉDIA'
-
             dias = len(pregoes)
-
             dfs['Variação'] = round(dfs['Variação']/dias,3)
             dfs[['Negócios', 'Quantidade', 'Volume']] = round(dfs[['Negócios', 'Quantidade', 'Volume']]/dias,0)
-
-        dfs['Asset'] = armz[pregoes[0][:10]]['Asset']
 
         dfs['Negócios_Param'] = dfs['Negócios']/max(dfs['Negócios'])
         dfs['Quantidade_Param'] = dfs['Quantidade']/max(dfs['Quantidade'])
         dfs['Volume_Param'] = dfs['Volume']/max(dfs['Volume'])
 
-        if displaying4:
-            dfs['Ranking'] = peso_negocios*dfs['Negócios_Param'] + peso_quantidade*dfs['Quantidade_Param'] + peso_valor*dfs['Volume_Param']
+        dfs['Evol_Param'] = dfs['Evolução']/max(dfs['Evolução'])
+        dfs['Evolução_L'] = np.zeros((len(dfs),1))
 
-        else:
-            dfs['Ranking'] = (1/3)*dfs['Negócios_Param'] + (1/3)*dfs['Quantidade_Param'] + (1/3)*dfs['Volume_Param']
+        dfs.loc[dfs['Evolução'] < -0.5, 'Evolução_L'] = 'F-'
+        dfs.loc[np.logical_and(dfs['Evolução']>=-0.5, dfs['Evolução']<-0.25), 'Evolução_L'] = 'F'
+        dfs.loc[np.logical_and(dfs['Evolução']>=-0.25, dfs['Evolução']<0), 'Evolução_L'] = 'E'
+        dfs.loc[np.logical_and(dfs['Evolução']>=0, dfs['Evolução']<0.25), 'Evolução_L'] = 'D'
+        dfs.loc[np.logical_and(dfs['Evolução']>=0.25, dfs['Evolução']<0.50), 'Evolução_L'] = 'C'
+        dfs.loc[np.logical_and(dfs['Evolução']>=0.5, dfs['Evolução']<0.75), 'Evolução_L'] = 'B'
+        dfs.loc[np.logical_and(dfs['Evolução']>=0.75, dfs['Evolução']<1.5), 'Evolução_L'] = 'A'
+        dfs.loc[np.logical_and(dfs['Evolução']>=1.5, dfs['Evolução']<2.5), 'Evolução_L'] = 'S'
+        dfs.loc[dfs['Evolução'] >=2.5, 'Evolução_L'] = 'S+'
+
+        if displaying4: # se eu quiser modificar os pesos
+            if displaying6: # e se eu adicionei a evolução
+                dfs['Ranking'] = peso_negocios*dfs['Negócios_Param'] + peso_quantidade*dfs['Quantidade_Param'] + peso_valor*dfs['Volume_Param'] + peso_evolucao*dfs['Evol_Param']
+            else:  # e se eu não adicionei a evolução
+                dfs['Ranking'] = peso_negocios*dfs['Negócios_Param'] + peso_quantidade*dfs['Quantidade_Param'] + peso_valor*dfs['Volume_Param']
+        else: # se eu não quiser mudar os pesos,
+            if displaying6: #mas eu adicionei a evolução
+                dfs['Ranking'] = (1/4)*dfs['Negócios_Param'] + (1/4)*dfs['Quantidade_Param'] + (1/4)*dfs['Volume_Param'] + (1/4)*dfs['Evol_Param']
+            else: #mas eu não adicionei a evolução
+                dfs['Ranking'] = (1/3)*dfs['Negócios_Param'] + (1/3)*dfs['Quantidade_Param'] + (1/3)*dfs['Volume_Param']
 
         dfs['Ranking'] = 100*dfs['Ranking']/max(dfs['Ranking'])
 
         dfs = dfs.sort_values('Ranking', ascending=False)
 
         dfs['Ranking_Param'] = np.arange(1,len(dfs['Ranking'])+1)
-
         dfs.set_index('Ranking_Param', inplace=True)
 
-        del dfs['Negócios_Param'], dfs['Quantidade_Param'], dfs['Volume_Param']#, dfs['Ranking']
+        del dfs['Negócios_Param'], dfs['Quantidade_Param'], dfs['Volume_Param']
 
         if displaying3:
             dfs= dfs[dfs['Asset'].isin(lista_personal)]
 
-        #dfs.columns(['Asset', 'Variação (%)', 'Vol. Negócios (trades)', 'Vol. Quantidade (ações)', 'Vol. Valor (R$)'])
+        dfs = dfs.rename({'Variação': 'Var. (%)', 'Negócios': 'Negócios', 'Quantidade':'Quantidade', 'Volume':'Valor (R$)', 'Evolução_L':'Evol.'}, axis='columns')
 
-        dfs = dfs.rename({'Variação': 'Variação (%)', 'Negócios': 'Negócios', 'Quantidade':'Quantidade', 'Volume':'Valor (R$)'}, axis='columns')
+        df_show_range = dfs[['Asset', 'Evol.', 'Var. (%)', 'Negócios', 'Quantidade', 'Valor (R$)']]
 
-        df_show_range = dfs
+        def highlight(s):
+            if s.duration > 5:
+                return ['background-color: yellow']*6
+            else:
+                return ['background-color: white']*6
+
+        df_show_range.style.apply(highlight, axis=1)
 
         return 'show_range'
-
-        #st.write(dfs) #poderia ser st.write(df), mesma coisa. .table mostra ela estática
 
     if displaying == 'Diário (apenas um dia)':
          action = show_daily()
@@ -276,10 +330,10 @@ if agree:
     elif action == 'show_range':
         st.write(' ')
         st.write(' ')
-        st.write('Clicando no botão, uma tabela será mostrada em ordem do melhor para o pior colodao, de acordo com o Ranking.')
-        st.write(' ')
+        st.write('Clicando no botão, uma tabela será mostrada em ordem do melhor para o pior coloção, de acordo com o Ranking.')
+        st.write('A coluna Evol. determina a evolução dos ativos ao decorrer dos anos em relação ao IBOV. Tende a priorizar os ativos que desempenharam bem e que são antigos na B3.')
 
-    botao = st.button(label='Mostre-me meus resultados.')
+    botao = st.button(label='Mostre-me meus resultados')
 
     if botao:
         if action == 'show_range':
