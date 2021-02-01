@@ -229,20 +229,37 @@ if agree:
                     else:
                         st.success('Tudo certo com o valor dos pesos!')
 
-        dfs = armz[pregoes[0][:10]].copy()
+        #dfs = armz[pregoes[-1][:10]].copy()
 
-        if len(pregoes)>1:
-            for somador in pregoes[1:]:
-                dfs += armz[somador[:10]]
-        else:
-            pass
+        #if len(pregoes)>1:
+        #    for somador in pregoes[:-1]:
+        #        dfs += armz[somador[:10]].copy()
+        #else:
+        #    pass
 
-        dfs['Asset'] = armz[pregoes[0][:10]]['Asset']
+        #st.write(dfs)
+
+        lista_atualizada = armz[pregoes[-1][:10]]['Asset']
+        lista_primitiva = armz[pregoes[0][:10]]['Asset']
+
+        main_list = list(set(lista_atualizada) - set(lista_primitiva))
+
+        st.write(main_list)
+
+        #for somador in armz:
+        #    if not main_list in
+        #    st.write(armz[somador])
+        #    armz[somador].loc[176] = ['X', 0, 0, 0, 0]
+            #armz[somador].index = armz[somador].index + 1  # shifting index
+            #armz[somador] = armz[somador].sort_index()  # sorting by index
+        #    st.write(armz[somador])
+
+
+
+        dfs['Asset'] = armz[pregoes[-1][:10]]['Asset']
         df_re = read_evolution()
 
         dfs['Evolução'] = np.zeros((len(dfs),1))
-
-        #meu, q porra, pq não consigo concatenar os 2 df?
 
         for varredor in dfs['Asset']:
             try:
@@ -302,14 +319,6 @@ if agree:
 
         df_show_range = dfs[['Asset', 'Evol.', 'Var. (%)', 'Negócios', 'Quantidade', 'Valor (R$)']]
 
-        def highlight(s):
-            if s.duration > 5:
-                return ['background-color: yellow']*6
-            else:
-                return ['background-color: white']*6
-
-        df_show_range.style.apply(highlight, axis=1)
-
         return 'show_range'
 
     if displaying == 'Diário (apenas um dia)':
@@ -341,6 +350,7 @@ if agree:
             st.write(f"""## TABELA {status} RESUMO: DE {inicio} ATÉ {final} ({len(pregoes)} PREGÕES AO TOTAL)""")
 
             st.write(df_show_range)
+
 
         if action == 'show_daily':
             st.write(df_show_daily)
