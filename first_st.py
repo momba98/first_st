@@ -236,7 +236,7 @@ if agree:
         dfs['Quantidade'] = 0.0
         dfs['Volume'] = 0.0
 
-        st.write(dfs, (armz[pregoes[-1][:10]))
+        st.write(dfs, armz[pregoes[-1][:10]]))
 
         for somador in pregoes:
             for ativos in armz[somador[:10]]['Asset']:
