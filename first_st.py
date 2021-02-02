@@ -143,7 +143,7 @@ if agree:
 
         lista_de_datas = [datetime.strptime(a, "%Y-%m-%d").date() for a in lista_de_planilhas]
 
-        st.write(lista_de_datas[0], lista_de_datas[1], lista_de_datas[-1])
+        st.write(' ')
 
         show_df = st.slider(
         label='1.2 Qual range de data você gostaria de visualizar?',
