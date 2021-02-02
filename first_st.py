@@ -236,6 +236,8 @@ if agree:
         dfs['Quantidade'] = 0.0
         dfs['Volume'] = 0.0
 
+        st.write(dfs)
+
         for somador in pregoes:
             for ativos in armz[somador[:10]]['Asset']:
                 st.write(somador,ativos, dfs.index[dfs['Asset'] == ativos])
