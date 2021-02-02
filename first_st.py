@@ -147,9 +147,9 @@ if agree:
 
         show_df = st.slider(
         label='1.2 Qual range de data você gostaria de visualizar?',
-        min_value=lista_de_datas[0]+ timedelta(days=1),
-        max_value=lista_de_datas[-1]+ timedelta(days=1),
-        value=[lista_de_datas[0]+ timedelta(days=1),lista_de_datas[-1]+ timedelta(days=1)],
+        min_value=lista_de_datas[0],
+        max_value=lista_de_datas[-1],
+        value=[lista_de_datas[0],lista_de_datas[-1]],
         format="DD/MM/YYYY")
 
         qtd_dias = str(show_df[1]-show_df[0] + timedelta(days=1)).split(',')[0]
