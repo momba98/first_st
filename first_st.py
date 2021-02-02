@@ -238,7 +238,7 @@ if agree:
 
         for somador in pregoes:
             for ativos in armz[somador[:10]]['Asset']:
-                st.write(somador,ativos)
+                st.write(somador,ativos, dfs.index[dfs['Asset'] == ativos])
                 dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Variação'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Variação']
                 dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Negócios'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Negócios']
                 dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Volume'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Volume']
