@@ -230,17 +230,17 @@ if agree:
                         st.success('Tudo certo com o valor dos pesos!')
 
 
+        pregoes =  np.sort(pregoes)
+
         dfs = pd.DataFrame(armz[pregoes[-1][:10]]['Asset'],columns=['Asset'])
         dfs['Variação'] = 0.0
         dfs['Negócios'] = 0.0
         dfs['Quantidade'] = 0.0
         dfs['Volume'] = 0.0
 
-        st.write(dfs, pregoes[-1][:10], np.sort(pregoes))
-
         for somador in pregoes:
             for ativos in armz[somador[:10]]['Asset']:
-                st.write(somador,ativos, dfs.index[dfs['Asset'] == ativos])
+                #st.write(somador,ativos, dfs.index[dfs['Asset'] == ativos])
                 dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Variação'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Variação']
                 dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Negócios'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Negócios']
                 dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Volume'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Volume']
