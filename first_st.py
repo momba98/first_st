@@ -49,7 +49,7 @@ with st.beta_expander('MOTIVAÇÃO/INTRODUÇÃO'):
     st.write("""
     Além disso, o estudo também indica quais ativos tiveram melhor desempenho médio em relação ao IBOV de 2016 até 2021 (parâmetro chamado de **Evolução**). O algorítmo dá prioridade aos ativos que
     tem mais tempo de negociação (IPOs extremamente performantes tenderão a ter classificação pior do que ativos antigos de ganho razoável). A Evolução
-    pode ser classificada de S+ até F-. Se um ativo apresenta classificação F, significa que se valorizou de modo médio bem menos do que o prórpio IBOV ou eventualmente deu prejuízo.
+    pode ser classificada de S+ até F-. Se um ativo apresenta classificação E ou pior, significa que se valorizou de modo médio bem menos do que o prórpio IBOV ou eventualmente deu prejuízo.
     """)
 
 
@@ -229,37 +229,23 @@ if agree:
                     else:
                         st.success('Tudo certo com o valor dos pesos!')
 
-        #dfs = armz[pregoes[-1][:10]].copy()
 
-        #if len(pregoes)>1:
-        #    for somador in pregoes[:-1]:
-        #        dfs += armz[somador[:10]].copy()
-        #else:
-        #    pass
+        dfs = pd.DataFrame(armz[pregoes[-1][:10]]['Asset'],columns=['Asset'])
+        dfs['Variação'] = 0.0
+        dfs['Negócios'] = 0.0
+        dfs['Quantidade'] = 0.0
+        dfs['Volume'] = 0.0
 
-        #st.write(dfs)
+        for somador in pregoes:
+            for ativos in armz[somador[:10]]['Asset']:
+                dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Variação'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Variação']
+                dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Negócios'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Negócios']
+                dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Volume'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Volume']
+                dfs.at[dfs.index[dfs['Asset'] == ativos][0],'Quantidade'] += armz[somador[:10]].at[dfs.index[dfs['Asset'] == ativos][0],'Quantidade']
 
-        lista_atualizada = armz[pregoes[-1][:10]]['Asset']
-        lista_primitiva = armz[pregoes[0][:10]]['Asset']
-
-        main_list = list(set(lista_atualizada) - set(lista_primitiva))
-
-        st.write(main_list)
-
-        #for somador in armz:
-        #    if not main_list in
-        #    st.write(armz[somador])
-        #    armz[somador].loc[176] = ['X', 0, 0, 0, 0]
-            #armz[somador].index = armz[somador].index + 1  # shifting index
-            #armz[somador] = armz[somador].sort_index()  # sorting by index
-        #    st.write(armz[somador])
-
-
-
-        dfs['Asset'] = armz[pregoes[-1][:10]]['Asset']
         df_re = read_evolution()
 
-        dfs['Evolução'] = np.zeros((len(dfs),1))
+        dfs['Evolução'] = 0.0
 
         for varredor in dfs['Asset']:
             try:
@@ -280,7 +266,8 @@ if agree:
         dfs['Volume_Param'] = dfs['Volume']/max(dfs['Volume'])
 
         dfs['Evol_Param'] = dfs['Evolução']/max(dfs['Evolução'])
-        dfs['Evolução_L'] = np.zeros((len(dfs),1))
+        dfs['Evolução_L'] = 0
+
 
         dfs.loc[dfs['Evolução'] < -0.5, 'Evolução_L'] = 'F-'
         dfs.loc[np.logical_and(dfs['Evolução']>=-0.5, dfs['Evolução']<-0.25), 'Evolução_L'] = 'F'
@@ -303,11 +290,11 @@ if agree:
             else: #mas eu não adicionei a evolução
                 dfs['Ranking'] = (1/3)*dfs['Negócios_Param'] + (1/3)*dfs['Quantidade_Param'] + (1/3)*dfs['Volume_Param']
 
+
         dfs['Ranking'] = 100*dfs['Ranking']/max(dfs['Ranking'])
 
         dfs = dfs.sort_values('Ranking', ascending=False)
-
-        dfs['Ranking_Param'] = np.arange(1,len(dfs['Ranking'])+1)
+        dfs['Ranking_Param'] = np.arange(1,len(dfs)+1)
         dfs.set_index('Ranking_Param', inplace=True)
 
         del dfs['Negócios_Param'], dfs['Quantidade_Param'], dfs['Volume_Param']
