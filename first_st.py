@@ -341,6 +341,10 @@ if agree:
 
             st.write(df_show_range)
 
+            df_show_range.to_clipboard(excel=True)
+
+            st.write('Sua tabela foi copiada para a área de transferência. Você pode colar as informações e retrabalhar no Excel.')
+
 
         if action == 'show_daily':
             st.write(df_show_daily)
